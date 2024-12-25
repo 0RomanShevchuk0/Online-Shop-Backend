@@ -1,0 +1,33 @@
+{
+  "name": "online-shop",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "devTs": "nodemon ./src/index.ts",
+    "devJs": "nodemon ./dist/index.js",
+    "test": "jest",
+    "watchTs": "tsc -w",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.0",
+    "jest": "^29.7.0",
+    "mongoose": "^8.9.2",
+    "ts-jest": "^29.2.5",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.2.0",
+    "@types/uuid": "^10.0.0",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}
