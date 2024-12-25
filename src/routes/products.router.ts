@@ -1,5 +1,5 @@
 import { HTTP_STATUSES } from "./../constants/httpStatuses"
-import { Request, Response, Router } from "express"
+import { Response, Router } from "express"
 import { body, Result, ValidationError, checkExact } from "express-validator"
 import { inputValidationMiddlevare } from "../middlewares/input-validation-middlevare"
 import { IProduct, ProductModel } from "../models/product.model"
@@ -8,6 +8,13 @@ import { v4 as uuidv4 } from "uuid"
 import { type ProductViewType } from "../types/product/product-view"
 import { type ProductCreateType } from "../types/product/product-create"
 import { type ProductUpdateType } from "../types/product/product-update"
+import {
+  RequestWithBody,
+  RequestWithParams,
+  RequestWithParamsAndBody,
+  RequestWithQuery,
+} from "../types/request.types"
+import { QueryProductsType, URIParamProductIdType } from "../types/product/product-request.types"
 
 const getProductViewModel = (dbProduct: IProduct): ProductViewType => {
   return {
@@ -31,37 +38,46 @@ const productValidation = checkExact(
 
 export const productsRouter = Router()
 
-productsRouter.get("/", async (req: Request, res: Response<ProductViewType[]>) => {
-  const { title } = req.query
+productsRouter.get(
+  "/",
+  async (req: RequestWithQuery<QueryProductsType>, res: Response<ProductViewType[]>) => {
+    const { title } = req.query
 
-  try {
-    const filteredProducts = await productsRepository.findProducts(title as string)
-    res.json(filteredProducts.map(getProductViewModel))
-  } catch (error) {
-    res.sendStatus(HTTP_STATUSES.SERVER_ERROR_500)
-  }
-})
-
-productsRouter.get("/:id", async (req: Request, res: Response<ProductViewType>) => {
-  const productId = req.params.id
-
-  try {
-    const foundProduct = await productsRepository.findProductById(productId)
-    if (!foundProduct) {
-      res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
-      return
+    try {
+      const filteredProducts = await productsRepository.findProducts(title as string)
+      res.json(filteredProducts.map(getProductViewModel))
+    } catch (error) {
+      res.sendStatus(HTTP_STATUSES.SERVER_ERROR_500)
     }
-    res.json(getProductViewModel(foundProduct))
-  } catch (error) {
-    res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
   }
-})
+)
+
+productsRouter.get(
+  "/:id",
+  async (req: RequestWithParams<URIParamProductIdType>, res: Response<ProductViewType>) => {
+    const productId = req.params.id
+
+    try {
+      const foundProduct = await productsRepository.findProductById(productId)
+      if (!foundProduct) {
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        return
+      }
+      res.json(getProductViewModel(foundProduct))
+    } catch (error) {
+      res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+    }
+  }
+)
 
 productsRouter.post(
   "/",
   productValidation,
   inputValidationMiddlevare,
-  async (req: Request, res: Response<ProductViewType | Result<ValidationError>>) => {
+  async (
+    req: RequestWithBody<ProductCreateType>,
+    res: Response<ProductViewType | Result<ValidationError>>
+  ) => {
     try {
       const newProduct = new ProductModel({
         id: uuidv4(),
@@ -82,7 +98,10 @@ productsRouter.patch(
   "/:id",
   productValidation,
   inputValidationMiddlevare,
-  async (req: Request, res: Response<ProductViewType | Result<ValidationError>>) => {
+  async (
+    req: RequestWithParamsAndBody<URIParamProductIdType, ProductUpdateType>,
+    res: Response<ProductViewType | Result<ValidationError>>
+  ) => {
     const productId = req.params.id
     try {
       const updatedProduct = await productsRepository.updateProduct(productId, req.body)
@@ -99,14 +118,17 @@ productsRouter.patch(
   }
 )
 
-productsRouter.delete("/:id", async (req: Request, res: Response) => {
-  const productId = req.params.id
-  try {
-    const isDeleted = await productsRepository.deleteProduct(productId)
-    const resultStatus = isDeleted ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.NOT_FOUND_404
+productsRouter.delete(
+  "/:id",
+  async (req: RequestWithParams<URIParamProductIdType>, res: Response) => {
+    const productId = req.params.id
+    try {
+      const isDeleted = await productsRepository.deleteProduct(productId)
+      const resultStatus = isDeleted ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.NOT_FOUND_404
 
-    res.sendStatus(resultStatus)
-  } catch (error) {
-    res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+      res.sendStatus(resultStatus)
+    } catch (error) {
+      res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+    }
   }
-})
+)
