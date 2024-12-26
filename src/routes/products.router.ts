@@ -24,8 +24,6 @@ const getProductViewModel = (dbProduct: IProduct): ProductViewType => {
   }
 }
 
-// to-do: type requests
-
 const productValidation = checkExact(
   [
     body("title", "Title length should be 3-30 symbols").isString().isLength({ min: 3, max: 30 }),
@@ -44,7 +42,7 @@ productsRouter.get(
     const { title } = req.query
 
     try {
-      const filteredProducts = await productsRepository.findProducts(title as string)
+      const filteredProducts = await productsRepository.findProducts(title)
       res.json(filteredProducts.map(getProductViewModel))
     } catch (error) {
       res.sendStatus(HTTP_STATUSES.SERVER_ERROR_500)

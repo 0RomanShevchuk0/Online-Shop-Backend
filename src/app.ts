@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express"
 import cors, { CorsOptions } from "cors"
 import { productsRouter } from "./routes/products.router"
+import { usersRouter } from "./routes/users.router"
 
 export const app = express()
 
@@ -18,3 +19,4 @@ app.get("/", async (req: Request, res: Response) => {
 })
 
 app.use("/products", productsRouter)
+app.use("/users", usersRouter)
