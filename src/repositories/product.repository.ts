@@ -23,8 +23,8 @@ export const productsRepository = {
     return await ProductModel.create(newProduct)
   },
 
-  async updateProduct(id: string, modifiedProduct: ProductUpdateType): Promise<IProduct | null> {
-    return ProductModel.findOneAndUpdate({ id }, { $set: modifiedProduct }, { new: true }).exec()
+  async updateProduct(id: string, updatedProduct: ProductUpdateType): Promise<IProduct | null> {
+    return ProductModel.findOneAndUpdate({ id }, { $set: updatedProduct }, { new: true }).exec()
   },
 
   async deleteProduct(id: string): Promise<boolean> {
